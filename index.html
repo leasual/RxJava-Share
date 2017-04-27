@@ -90,7 +90,7 @@
             <script type="text/template">
                 最早，我们这么写代码
 
-                ```java
+                <pre><code data-trim contenteditable>
                 private void requestFinished(JSONObject json) {
                 new DealAsync().execute(json);
                 }
@@ -108,7 +108,8 @@
                         //TODO deal data to view
                         }
                         }
-                        ```
+
+                </code></pre>
             </script>
         </section>
 
@@ -116,19 +117,19 @@
             <script type="text/template">
                 现在，可以这么写
 
-                ```java
+                <pre><code data-trim contenteditable>
                 private void requestFinished(JSONObject json) {
                 Observable.just(dealData(json))
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<Object>() {
+                .subscribe(new Action1<code>() {
                     @Override
                     public void call(Object object) {
                     //TODO deal data to view
                     }
                     });
                     }
-                    ```
+                </code></pre>
             </script>
         </section>
 
@@ -144,8 +145,7 @@
         <section data-markdown>
             <script type="text/template" style="font-size: 0.85em">
                 ####  假设有这样一个需求：界面上有一个自定义的视图 imageCollectorView ，它的作用是显示多张图片，并能使用 addImage(Bitmap) 方法来任意增加显示的图片。
-
-                ```java
+                <pre><code data-trim contenteditable>
                 new Thread() {
                   @Override
                   public void run() {
@@ -166,15 +166,15 @@
                     }
                   }
                 }.start();
-                ```
+                    </code></pre>
             </script>
         </section>
 
         <section data-markdown>
             <script type="text/template" style="font-size: 0.85em">
-                ####  使用RxJava实现
-                <font size=6>
-                    ```java
+                ####  而使用RxJava实现是这个样子
+                <font size=4>
+                    <pre><code data-trim contenteditable>
                     Observable.from(folders)
                     .flatMap(new Func1<File, Observable<File>>() {
                     @Override
@@ -202,8 +202,8 @@
                             imageCollectorView.addImage(bitmap);
                             }
                             });
-                            ```
-                            <font>
+                            </code></pre>
+                    <font>
             </script>
         </section>
 
@@ -220,8 +220,8 @@
             <script type="text/template" style="font-size: 0.85em">
                 当你使用Java8 Lambda,每次你打开，看到的是这样的：
 
-                <font size=6>
-                    ```java
+                <font size=4>
+                    <pre><code data-trim contenteditable>
                     Observable.from(folders)
                     .flatMap((Func1) (folder) -> { Observable.from(file.listFiles()) })
                     .filter((Func1) (file) -> { file.getName().endsWith(".png") })
@@ -229,7 +229,7 @@
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe((Action1) (bitmap) -> { imageCollectorView.addImage(bitmap) });
-                    ```
+                     </code></pre>
                     <font>
             </script>
         </section>
@@ -237,15 +237,15 @@
 
         <section data-markdown>
             <script type="text/template">
-                *试想一下，当我们的需求非常复杂的时候，或者有更多这样那样的需求。
-                再试想，在这一大堆需求实现完两个月之后需要改功能，当你翻回这里看到自己当初写下的那一片迷之缩进，
-                你能保证自己将迅速看懂，而不是对着代码重新捋一遍思路？*
+                ####  试想一下，当我们的需求非常复杂的时候，或者有更多这样那样的需求。
+                ####  再试想，在这一大堆需求实现完两个月之后需要改功能，当你翻回这里看到自己当初写下的那一片迷之缩进，
+                ####  你能保证自己将迅速看懂，而不是对着代码重新捋一遍思路？
             </script>
         </section>
 
         <section data-markdown data-transition="convex-in concave-out">
             <script type="text/template">
-                # *入门*
+                # 入门
             </script>
         </section>
 
@@ -282,36 +282,43 @@
             </script>
         </section>
 
+        <section>
+            <section>
+                <h3>RxJava 的观察者模式</h3>
+
+                <p style="font-size:30px">RxJava 有四个基本概念：Observable (可观察者，即被观察者)、 Observer (观察者)、 subscribe (订阅)、事件。Observable 和 Observer 通过 subscribe() 方法实现订阅关系，从而 Observable 可以在需要的时候发出事件来通知 Observer。</p>
+                <p style="font-size:30px">与传统观察者模式不同， RxJava 的事件回调方法除了普通事件 onNext() （相当于 onClick() / onEvent()）之外，还定义了两个特殊的事件：onCompleted() 和 onError()。</p>
+                <p style="font-size:30px">onCompleted(): 事件队列完结。RxJava 不仅把每个事件单独处理，还会把它们看做一个队列。RxJava 规定，当不会再有新的 onNext() 发出时，需要触发 onCompleted() 方法作为标志。</p>
+            </section>
+            <section>
+                <h2>RxJava 的观察者模式</h2>
+                <p style="font-size:30px">onError(): 事件队列异常。在事件处理过程中出异常时，onError() 会被触发，同时队列自动终止，不允许再有事件发出。</p>
+                <p style="font-size:30px">在一个正确运行的事件序列中, onCompleted() 和 onError() 有且只有一个，并且是事件序列中的最后一个。需要注意的是，onCompleted() 和 onError() 二者也是互斥的，即在队列中调用了其中一个，就不应该再调用另一个。</p>
+            </section>
+        </section>
         <section data-markdown>
             <script type="text/template">
-                ```java
-                Observable<String> myObservable = Observable.create(
+                <font size=4>
+                    <pre><code data-trim contenteditable>
+                    Observable<String> myObservable = Observable.create(
                     new Observable.OnSubscribe<String>() {
                         @Override
                         public void call(Subscriber<？ super String> sub) {
-                        sub.onNext("Hello, world!");
-                        sub.onCompleted();
+                            sub.onNext("Hello, world!");
+                            sub.onCompleted();
                         }
-                        }
-                        );
-                        ```
-
-                        ```java
-                        Subscriber<String> mySubscriber = new Subscriber<String>() {
-                            @Override
-                            public void onNext(String s) { System.out.println(s); }
-
-                            @Override
-                            public void onCompleted() { }
-
-                            @Override
-                            public void onError(Throwable e) { }
-                            };
-                            ```
-
-                            ```java
-                            myObservable.subscribe(mySubscriber);
-                            ```
+                    });
+                    Subscriber<String> mySubscriber = new Subscriber<String>() {
+                        @Override
+                        public void onNext(String s) { System.out.println(s); }
+                        @Override
+                        public void onCompleted() { }
+                        @Override
+                        public void onError(Throwable e) { }
+                    };
+                    myObservable.subscribe(mySubscriber);
+                            </code></pre>
+                    <font>
             </script>
         </section>
 
@@ -323,7 +330,7 @@
 
         <section data-markdown>
             <script type="text/template">
-                ```java
+                <pre><code data-trim contenteditable>
                 Observable.just("Hello, world!")
                 .subscribe(new Action1<String>() {
                     @Override
@@ -331,16 +338,16 @@
                     System.out.println(s);
                     }
                     });
-                    ```
+                    </code></pre>
 
-                    *或*
-                    <!-- .element: class="fragment" -->
+                *或*
+                <!-- .element: class="fragment" -->
 
-                    ```java
+                <pre><code data-trim contenteditable>
                     Observable.just("Hello, world!")
                     .subscribe(s -> System.out.println(s));
-                    ```
-                    <!-- .element: class="fragment" -->
+                   </code></pre>
+                <!-- .element: class="fragment" -->
             </script>
         </section>
 
@@ -358,15 +365,18 @@
         <section data-markdown>
             <script type="text/template">
                 - 修改 Observable 对象
-                ```java
-                Observable.just("Hello, world! -MrFu")
-                ```
+
+                <pre><code data-trim contenteditable>
+                    Observable.just("Hello, world! -James")
+                </code></pre>
                 <!-- .element: class="fragment" -->
+
                 - Subscriber 中修改：
                 <!-- .element: class="fragment" -->
-                ```java
-                .subscribe(s -> System.out.println(s + " -James"));
-                ```
+
+                <pre><code data-trim contenteditable>
+                    .subscribe(s -> System.out.println(s + " -James"));
+                </code></pre>
                 <!-- .element: class="fragment" -->
 
 
@@ -380,7 +390,7 @@
             <script type="text/template">
                 ## 操作符
 
-                ```java
+                <pre><code data-trim contenteditable>
                 Observable.just("Hello, world!")
                 .map(new Func1<String, String>() {
                 @Override
@@ -389,13 +399,13 @@
                 }
                 })
                 .subscribe(s -> System.out.println(s));
-                ```
+                </code></pre>
 
-                ```java
+                <pre><code data-trim contenteditable>
                 Observable.just("Hello, world!")
                 .map(s -> s + " -James")
                 .subscribe(s -> System.out.println(s));
-                ```
+                </code></pre>
                 <!-- .element: class="fragment" -->
 
             </script>
@@ -403,7 +413,7 @@
 
         <section data-markdown>
             <script type="text/template">
-                ```java
+                <pre><code data-trim contenteditable>
                 Observable.just("Hello, world!")
                 .map(new Func1<String, Integer>() {
                 @Override
@@ -412,13 +422,13 @@
                 }
                 })
                 .subscribe(i -> System.out.println(Integer.toString(i)));
-                ```
+                 </code></pre>
 
-                ```Java
+                <pre><code data-trim contenteditable>
                 Observable.just("Hello, world!")
                 .map(s -> s.hashCode())
                 .subscribe(i -> System.out.println(Integer.toString(i)));
-                ```
+                 </code></pre>
                 <!-- .element: class="fragment" -->
 
             </script>
@@ -452,12 +462,12 @@
 
         <section data-markdown>
             <script type="text/template">
-                ## *造个搜索引擎！*
+                ## 查询！
 
-                ```java
+                <pre><code data-trim contenteditable>
                 Observable<List<String>> query(String text);  //返回 urls
-                    ```
-                    <!-- .element: class="fragment" -->
+                   </code></pre>
+                <!-- .element: class="fragment" -->
 
             </script>
         </section>
@@ -465,28 +475,28 @@
         <section data-markdown>
             <script type="text/template">
                 按照之前做法，我们会这么做：
-                ```java
+                <pre><code data-trim contenteditable>
                 query("Hello, world!")
                 .subscribe(urls -> {
                 for (String url : urls) {
                 System.out.println(url);
                 }
                 });
-                ```
+               </code></pre>
 
                 但是，还能这么做：
                 <!-- .element: class="fragment" -->
 
-                ```java
+                <pre><code data-trim contenteditable>
                 query("Hello, world!")
                 .subscribe(urls -> {
                 Observable.from(urls)
                 .subscribe(url -> System.out.println(url));
                 });
-                ```
+                </code></pre>
                 <!-- .element: class="fragment" -->
 
-                *不够！！！*
+                #不够！！！
                 <!-- .element: class="fragment" -->
 
             </script>
@@ -496,7 +506,7 @@
             <script type="text/template">
                 超牛逼的操作符：*flatMap*
 
-                ```java
+                <pre><code data-trim contenteditable>
                 query("Hello, world!")
                 .flatMap(new Func1<List<String>, Observable<String>>() {
                     @Override
@@ -505,15 +515,14 @@
                         }
                         })
                         .subscribe(url -> System.out.println(url));
+                        </code></pre>
 
-                        ```
-
-                        ```java
+                <pre><code data-trim contenteditable>
                         query("Hello, world!")
                         .flatMap(urls -> Observable.from(urls))
                         .subscribe(url -> System.out.println(url));
-                        ```
-                        <!-- .element: class="fragment" -->
+                        </code></pre>
+                <!-- .element: class="fragment" -->
 
             </script>
         </section>
@@ -531,21 +540,21 @@
 
         <section data-markdown data-transition="zoom">
             <script type="text/template">
-                <span style="font-size:100px">*See More!*</span>
+                <span style="font-size:100px">*想看更多!*</span>
 
             </script>
         </section>
 
         <section data-markdown>
             <script type="text/template">
-                ```java
+                <pre><code data-trim contenteditable>
                 query("Hello, world!")
                 .flatMap(urls -> Observable.from(urls))
                 .flatMap(url -> getTitle(url))
                 .subscribe(title -> System.out.println(title));
-                ```
+                 </code></pre>
 
-                ```java
+                <pre><code data-trim contenteditable>
                 query("Hello, world!")
                 .flatMap(urls -> Observable.from(urls))
                 .flatMap(url -> getTitle(url))
@@ -553,7 +562,7 @@
                 .take(5)//只要5个结果
                 .doOnNext(title -> saveTitle(title))//打印前保存标题
                 .subscribe(title -> System.out.println(title));
-                ```
+                </code></pre>
                 <!-- .element: class="fragment" -->
             </script>
         </section>
@@ -568,13 +577,13 @@
 
         <section data-markdown data-transition="zoom">
             <script type="text/template">
-                <span style="font-size:100px">*Deal Error*</span>
+                <span style="font-size:100px">*错误处理*</span>
             </script>
         </section>
 
         <section data-markdown>
             <script type="text/template">
-                ```java
+                <pre><code data-trim contenteditable>
                 Observable.just("Hello, world!")
                 .map(s -> potentialException(s))
                 .map(s -> anotherPotentialException(s))
@@ -588,11 +597,11 @@
                     @Override
                     public void onError(Throwable e) { System.out.println("Ouch!"); }
                     });
-                    ```
+                    </code></pre>
 
-                    - 错误处理
-                    - 所有的异常交给订阅者处理
-                    - 订阅者知道什么时候已经接收了全部数据
+                - 错误处理
+                - 所有的异常交给订阅者处理
+                - 订阅者知道什么时候已经接收了全部数据
 
             </script>
         </section>
@@ -616,7 +625,7 @@
 
         <section data-markdown>
             <script type="text/template">
-                ```java
+                <pre><code data-trim contenteditable>
                 Observable.just(1, 2, 3, 4)
                 .subscribeOn(Schedulers.io()) // 指定 subscribe() 发生在 IO 线程
                 .observeOn(AndroidSchedulers.mainThread()) // 指定 Subscriber 的回调发生在主线程
@@ -626,10 +635,12 @@
                     Log.d(tag, "number:" + number);
                     }
                     });
-                    ```
+                    </code></pre>
 
+                <pre><code data-trim contenteditable>
                     常用于：后台线程取数据，主线程显示
-                    <!-- .element: class="fragment" -->
+                     </code></pre>
+                <!-- .element: class="fragment" -->
 
             </script>
         </section>
@@ -639,7 +650,7 @@
                 ##  切一次切不够！！
 
 
-                ```java
+                <pre><code data-trim contenteditable>
                 Observable.just(1, 2, 3, 4) // IO 线程，由 subscribeOn() 指定
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.newThread())
@@ -648,7 +659,7 @@
                 .map(mapOperator2) // IO 线程，由 observeOn() 指定
                 .observeOn(AndroidSchedulers.mainThread)
                 .subscribe(subscriber);  // Android 主线程，由 observeOn() 指定
-                ```
+                </code></pre>
                 <!-- .element: class="fragment" -->
 
 
@@ -659,7 +670,7 @@
             <script type="text/template">
                 *Sample*
 
-                ```java
+                <pre><code data-trim contenteditable>
                 getUser(userId, new Callback<User>() {
                     @Override
                     public void success(User user) {
@@ -682,7 +693,7 @@
                     ...
                     }
                     };
-                    ```
+                    </code></pre>
 
             </script>
         </section>
@@ -690,7 +701,7 @@
         <section data-markdown data-background="attach/bm_1.jpg"
                  style="background:rgba(0,0,0,0.8)">
             <script type="text/template">
-                ##  *回调地狱  !!!!!*
+                ##  回调地狱  !!!!!
 
                 ##  解决它!
                 <!-- .element: class="fragment" -->
@@ -700,7 +711,7 @@
 
         <section data-markdown>
             <script type="text/template">
-                ```java
+                <pre><code data-trim contenteditable>
                 getUser(userId)
                 .doOnNext(new Action1<User>() {
                     @Override
@@ -722,14 +733,14 @@
                         ...
                         }
                         });
-                        ```
+                        </code></pre>
 
             </script>
         </section>
 
         <section data-markdown data-transition="convex">
             <script type="text/template">
-                <span style="font-size:100px">*Anything else?*</span>
+                <span style="font-size:100px">*还有其他么?*</span>
             </script>
         </section>
 
@@ -737,7 +748,7 @@
             <script type="text/template">
                 ##  *RxBinding*
 
-                ```java
+                <pre><code data-trim contenteditable>
                 Button button = ...;
                 RxView.clickEvents(button) // 以 Observable 形式来反馈点击事件
                 .subscribe(new Action1<ViewClickEvent>() {
@@ -746,15 +757,16 @@
                     // Click handling
                     }
                     });
-                    ```
-                    <!-- .element: class="fragment" -->
+                    </code></pre>
+                <!-- .element: class="fragment" -->
 
-                    ```java
+
+                <pre><code data-trim contenteditable>
                     RxView.clickEvents(button)
                     .throttleFirst(500, TimeUnit.MILLISECONDS)
                     .subscribe(clickAction);
-                    ```
-                    <!-- .element: class="fragment" -->
+                   </code></pre>
+                <!-- .element: class="fragment" -->
 
             </script>
         </section>
@@ -768,15 +780,38 @@
             </script>
         </section>
 
+        <section data-markdown>
+            <script type="text/template">
+                ##  *RxLifecycle*
+                <blockquote class="fragment"><p>管理RxJava生命周期，防止使用RxJava带来的内存泄漏。</p></blockquote>
+                <!-- .element: class="fragment" -->
+
+                <pre><code data-trim contenteditable>
+                    myObservable
+                        .compose(RxLifecycle.bindUntilEvent(lifecycle, ActivityEvent.DESTROY))
+                        .subscribe();
+                   </code></pre>
+                <!-- .element: class="fragment" -->
+
+                <pre><code data-trim contenteditable>
+                    myObservable
+                        .compose(RxLifecycleAndroid.bindActivity(lifecycle))
+                        .subscribe();
+                   </code></pre>
+                <!-- .element: class="fragment" -->
+
+            </script>
+        </section>
+
         <section data-markdown data-transition="convex">
             <script type="text/template">
-                ## *各种异步！！*
+                ## 各种异步！！
             </script>
         </section>
 
         <section data-markdown>
             <script type="text/template">
-                # *问题解答*
+                # 问题解答
 
             </script>
         </section>

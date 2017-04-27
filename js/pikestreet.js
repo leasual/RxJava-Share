@@ -15,7 +15,11 @@ Reveal.initialize({
     { src: 'plugin/markdown/markdown.js' },
     { src: 'plugin/notes/notes.js', async: true },
     { src: 'plugin/zoom-js/zoom.js', async: true },
-    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+    { src: 'plugin/highlight_1/highlight_1.js', async: true,
+      condition: function () {
+      return !!document.querySelector('pre code');
+    },
+      callback: function() { hljs.initHighlightingOnLoad(); } }
   ]
 });
 
